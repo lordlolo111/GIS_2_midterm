@@ -114,6 +114,15 @@ def _():
     return
 
 
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(r"""
+    POIs have been retrieved in the first place via osmnx in the first place.
+    For better reproducilbility the layers have been stored as .geojson and loaded into the script locally.
+    """)
+    return
+
+
 @app.cell
 def _(gpd):
     hospitals = gpd.read_file("data/hospital.geojson")
@@ -126,6 +135,14 @@ def _(gpd):
 def _(mo):
     mo.md(r"""
     ### Municipalities of Styria
+    """)
+    return
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(r"""
+    Municipalities have been searched via OverPass Turbo Wizard in the internet due to restrictions and timeout from osmnx as well as osm query.
     """)
     return
 
@@ -168,6 +185,14 @@ def _(mo):
     return
 
 
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(r"""
+    Population data were retrieved from offical sources. (Source: Land Steiermark, 2026 https://www.landesentwicklung.steiermark.at/cms/beitrag/12651292/142970621/)
+    """)
+    return
+
+
 @app.cell
 def _(pd):
     pop_data = pd.read_csv("data/gemeinden.CSV", sep=";", encoding="cp1252", skiprows=9, names=["gkz", "name", "population"])
@@ -180,7 +205,7 @@ def _(pd):
 
 @app.cell
 def _(municipalities, pop_data):
-    cities = municipalities.merge(pop_data[["gkz", "population"]], on="gkz", how="left")
+    cities = municipalities.merge(pop_data[["gkz", "population"]], on="gkz", how="left") # joined administrative boundaries with population data
     cities
     return (cities,)
 
@@ -189,7 +214,7 @@ def _(municipalities, pop_data):
 def _(mo):
     mo.md(r"""
     ### Street Network of Styria
-    Retrieved via geofabrik.de (17.11.2026 & processed in QGIS), Overpass-Query couldn't handle the request
+    Retrieved via geofabrik.de (16.11.2026 & processed in QGIS), Overpass-Query couldn't handle the request
     """)
     return
 
@@ -239,6 +264,7 @@ def _(boundary):
 
 @app.function
 def project_to_utm(gdf, crs):
+    """ Procection to set CRS"""
     return gdf.to_crs(crs)
 
 
@@ -513,7 +539,7 @@ def _(charging_stations_utm):
 @app.cell(hide_code=True)
 def _(mo):
     mo.md(r"""
-    ### Power-Outlet of the charging stations
+    ### Comparison of different charger types
     """)
     return
 
@@ -567,27 +593,24 @@ def _(fast, normal, plt, slow, ultra_fast):
 @app.cell(hide_code=True)
 def _(mo):
     mo.md(r"""
-    ### Spatial Analysis
+    # Spatial Analysis
+    ### Median Distance from road category to charger
     """)
     return
 
 
 @app.cell
 def _(charging_stations_utm, pd, road_classes, streets_utm):
-    # Store distances
     distances = pd.DataFrame(index=charging_stations_utm.index)
 
     for road_type, classes in road_classes.items():
 
-        # Filter roads by category
         selected_roads = streets_utm[
             streets_utm["fclass"].isin(classes)
         ]
 
-        # Combine all road geometries
         roads_union = selected_roads.geometry.union_all()
 
-        # Calculate distance to nearest road (in km)
         distances[road_type] = (
             charging_stations_utm.geometry.distance(roads_union) / 1000
         )
@@ -637,6 +660,14 @@ def _(Line2D, distances, plt, sns):
 
     print("Median distances to road categories (km):")
     print(distances.median())
+    return
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(r"""
+    ### Charging Infrastructure Proximity to Highways
+    """)
     return
 
 
@@ -701,7 +732,8 @@ def _(cumulative_percentage, np, plt, sorted_distances):
 @app.cell(hide_code=True)
 def _(mo):
     mo.md(r"""
-    ### Hexagon Grid
+    ### Spatial Distribution of chargin stations in remark to a hexagon Grid (1 Cell = 5,16 sqrkm)
+    Claude helped creating this
     """)
     return
 
@@ -925,6 +957,25 @@ def _(
     _fig.tight_layout(rect=[0, 0, 1, 0.94])
 
     _fig
+    return
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(r"""
+    ### TO DO
+    - Implement Scoring System from scoring system
+    - better documentation
+    - map creation
+    """)
+    return
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(r"""
+ 
+    """)
     return
 
 
